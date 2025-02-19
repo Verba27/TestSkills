@@ -1,67 +1,64 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UniRx;
-using UnityEngine;
 using Zenject;
 
-namespace DefaultNamespace
+public class SquaresSpawner : IInitializable, IDisposable
 {
-    public class SquaresSpawner : IInitializable, IDisposable
+    private readonly SquaresView.Factory _squaresFactory;
+    private readonly ISquaresRegistry _squaresRegistry;
+    private readonly IScreenPositionProvider _screenPositionProvider;
+    private readonly IGameStateModel _gameStateModel;
+    private readonly CompositeDisposable _disposable = new();
+    private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
+    public SquaresSpawner(SquaresView.Factory squaresFactory, IScreenPositionProvider screenPositionProvider,
+        IGameStateModel gameStateModel, ISquaresRegistry squaresRegistry)
     {
-        
-        private readonly SquaresView.Factory _squaresFactory;
-        private readonly IScreenPositionProvider _screenPositionProvider;
-        private readonly IGameStateModel _gameStateModel;
-        private readonly CompositeDisposable _disposable = new ();
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private float _lastSpawnTime = 0f;
+        _squaresFactory = squaresFactory;
+        _screenPositionProvider = screenPositionProvider;
+        _gameStateModel = gameStateModel;
+        _squaresRegistry = squaresRegistry;
+    }
 
-        public SquaresSpawner(SquaresView.Factory squaresFactory, IScreenPositionProvider screenPositionProvider,
-            IGameStateModel gameStateModel)
-        {
-            _squaresFactory = squaresFactory;
-            _screenPositionProvider = screenPositionProvider;
-            _gameStateModel = gameStateModel;
-        }
+    public void Initialize()
+    {
+        _gameStateModel.CurrentGameState
+            .Where(x => x == GameState.GamePlay)
+            .Subscribe(_ => GameStateChanged())
+            .AddTo(_disposable);
+        _squaresRegistry.Squares.ObserveCountChanged()
+            .Subscribe().AddTo(_disposable);
+    }
 
-        void SpawnObject()
-        {
-            _gameStateModel.CurrentGameState
-                .Where(x => x == GameState.GamePlay)
-                .Subscribe(_ => GameStateChanged())
-                .AddTo(_disposable);
-        }
+    public void Dispose()
+    {
+        _cancellationTokenSource?.Dispose();
+        _disposable?.Dispose();
+    }
 
-        private void GameStateChanged()
-        {
-            var token = _cancellationTokenSource.Token;
-            AsyncSpawn(token).Forget();
-        }
+    private void GameStateChanged()
+    {
+        var token = _cancellationTokenSource.Token;
+        AsyncSpawn(token).Forget();
+    }
 
-        private async UniTask AsyncSpawn(CancellationToken token)
+    private async UniTask AsyncSpawn(CancellationToken token)
+    {
+        while (!token.IsCancellationRequested)
         {
-            while (!token.IsCancellationRequested)
+            if (_squaresRegistry.Squares.Count >= 7)
             {
-                _screenPositionProvider.GetRandomScreenPosition(out var position);
-                var square = _squaresFactory.Create();
-                square.SetPosition(position);
-                _lastSpawnTime = Time.realtimeSinceStartup;
-                await UniTask.Delay(2000, cancellationToken: token);
+                await UniTask.Delay(500, cancellationToken: token);
+                continue;
             }
-        }
-
-        public void Initialize()
-        {
-            SpawnObject();
-        }
-
-        public void Dispose()
-        {
-            _cancellationTokenSource?.Dispose();
-            _disposable?.Dispose();
+            
+            ISquareView square = _squaresFactory.Create();
+            _screenPositionProvider.GetRandomScreenPosition(out var position);
+            square.SetPosition(position);
+            square.Initialize();
+            await UniTask.Delay(2000, cancellationToken: token);
         }
     }
 }

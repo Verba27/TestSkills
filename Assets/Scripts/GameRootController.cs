@@ -1,50 +1,25 @@
-﻿using System.Threading;
-using Cysharp.Threading.Tasks;
-using UniRx;
-using UnityEngine;
+﻿using UniRx;
 using Zenject;
 
-namespace DefaultNamespace
+public class GameRootController : IInitializable
 {
-    public class GameRootController: IInitializable
+    private readonly IGameStateModel _gameStateModel;
+    private CompositeDisposable _disposable;
+    private CharacterView _characterView;
+
+    public GameRootController(IGameStateModel gameStateModel)
     {
-        private readonly IGameStateModel _gameStateModel;
-        private readonly CharacterView.Factory _characterFactory;
-        private readonly IGameEventHandler _gameEventHandler;
-        private CompositeDisposable _disposable;
-
-        public GameRootController(IGameStateModel gameStateModel, CharacterView.Factory characterFactory, IGameEventHandler gameEventHandler)
-        {
-            _gameStateModel = gameStateModel;
-            _characterFactory = characterFactory;
-            _gameEventHandler = gameEventHandler;
-        }
-
-        private async void GameMenuStart()
-        {
-            await UniTask.Delay(100);
-            _characterFactory.Create();
-            _gameStateModel.CurrentGameState.Value = GameState.GamePlay;
-            _gameStateModel.Score.Subscribe(score => ScoreSpam());
-
-        }
-
-        private void ScoreSpam()
-        {
-            Debug.Log("Score: " + _gameStateModel.Score.Value);
-        }
-
-        public void Initialize()
-        {
-            _gameStateModel.CurrentGameState.Value = GameState.GameMenu;
-            GameMenuStart();
-        }
+        _gameStateModel = gameStateModel;
     }
 
-    public enum GameState
+    public void Initialize()
     {
-        GameMenu,
-        GamePlay,
-        GameOver
+        _gameStateModel.CurrentGameState.Value = GameState.GameMenu;
+        GameMenuStart();
+    }
+
+    private void GameMenuStart()
+    {
+        _gameStateModel.CurrentGameState.Value = GameState.GamePlay;
     }
 }

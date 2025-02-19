@@ -1,7 +1,8 @@
-﻿using System;
-using Zenject;
+﻿using System.Collections.Generic;
+using System.Threading;
+using UnityEngine;
 
-public interface ICharacterView: IDisposable
+public interface ICharacterView
 {
-
+    void SetPath(List<Vector3> path, CancellationToken token);
 }

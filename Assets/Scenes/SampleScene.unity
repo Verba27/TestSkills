@@ -218,6 +218,7 @@ GameObject:
   - component: {fileID: 752284455}
   - component: {fileID: 752284454}
   - component: {fileID: 752284456}
+  - component: {fileID: 752284457}
   m_Layer: 0
   m_Name: SceneContext
   m_TagString: Untagged
@@ -286,3 +287,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   squaresViewPrefab: {fileID: 3019086100081846918, guid: 08ca92675c5aa3b4cabfa4859231b578, type: 3}
   characterViewPrefab: {fileID: -511551769156842151, guid: 3ac379b3aeb78494ea9c8f719571a3a9, type: 3}
+  input: {fileID: 1202765561774803653, guid: 6f1c2a07a94de024291b0025084740c3, type: 3}
+--- !u!114 &752284457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 752284453}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccdd88a5a4f340ffbf5ccb3859a41af0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
