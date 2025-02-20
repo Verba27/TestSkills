@@ -8,14 +8,22 @@ using Zenject;
 public class CharacterView : MonoBehaviour, ICharacterView
 {
     [Inject] private IInGameEventHandler _inGameEventHandler;
-    [SerializeField] private float speed = 5f;
-    [SerializeField] private int minSpeed = 2;
+    [Inject] private GameSettings _gameSettings;
+    private float _maxSpeed = 7f;
+    private int _minSpeed = 2;
     private List<Vector3> _path;
     private bool _isMoving = false;
     private float _totalDistanceTraveled = 0f;
 
     public class Factory : PlaceholderFactory<CharacterView>
     {
+    }
+
+    private void Start()
+    {
+        _maxSpeed = _gameSettings.maxSpeed;
+        _minSpeed = _gameSettings.minSpeed;
+        _totalDistanceTraveled = _inGameEventHandler.GetSavedDistance();
     }
 
     public async UniTask Move(List<Vector3> path, CancellationToken token)
@@ -63,7 +71,7 @@ public class CharacterView : MonoBehaviour, ICharacterView
     {
         float distance = Vector3.Distance(transform.position, target);
         float speedMultiplier = Mathf.Clamp01(distance / 3f);
-        return Mathf.Max(minSpeed, speed * speedMultiplier);
+        return Mathf.Max(_minSpeed, _maxSpeed * speedMultiplier);
     }
 
     public void SetPath(List<Vector3> path, CancellationToken token)

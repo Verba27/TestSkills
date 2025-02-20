@@ -6,6 +6,7 @@ using Zenject;
 
 public class SquaresSpawner : IInitializable, IDisposable
 {
+    private readonly GameSettings _gameSettings;
     private readonly SquaresView.Factory _squaresFactory;
     private readonly ISquaresRegistry _squaresRegistry;
     private readonly IScreenPositionProvider _screenPositionProvider;
@@ -13,13 +14,17 @@ public class SquaresSpawner : IInitializable, IDisposable
     private readonly CompositeDisposable _disposable = new();
     private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-    public SquaresSpawner(SquaresView.Factory squaresFactory, IScreenPositionProvider screenPositionProvider,
-        IGameStateModel gameStateModel, ISquaresRegistry squaresRegistry)
+    public SquaresSpawner(SquaresView.Factory squaresFactory,
+        IScreenPositionProvider screenPositionProvider,
+        IGameStateModel gameStateModel,
+        ISquaresRegistry squaresRegistry,
+        GameSettings gameSettings)
     {
         _squaresFactory = squaresFactory;
         _screenPositionProvider = screenPositionProvider;
         _gameStateModel = gameStateModel;
         _squaresRegistry = squaresRegistry;
+        _gameSettings = gameSettings;
     }
 
     public void Initialize()
@@ -48,17 +53,17 @@ public class SquaresSpawner : IInitializable, IDisposable
     {
         while (!token.IsCancellationRequested)
         {
-            if (_squaresRegistry.Squares.Count >= 7)
+            if (_squaresRegistry.Squares.Count >= _gameSettings.maxSquareCount)
             {
                 await UniTask.Delay(500, cancellationToken: token);
                 continue;
             }
-            
+
             ISquareView square = _squaresFactory.Create();
             _screenPositionProvider.GetRandomScreenPosition(out var position);
             square.SetPosition(position);
             square.Initialize();
-            await UniTask.Delay(2000, cancellationToken: token);
+            await UniTask.Delay(_gameSettings.squareSpawnInterval * 1000, cancellationToken: token);
         }
     }
 }

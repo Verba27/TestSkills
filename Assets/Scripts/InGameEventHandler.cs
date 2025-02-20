@@ -21,13 +21,16 @@ public class InGameEventHandler : IInGameEventHandler
     public void DistancePassed(int value)
     {
         _distancePassedService.Distance.Value = value;
-        _distancePassedService.Distance.ThrottleFirst(TimeSpan.FromSeconds(1))
-            .Subscribe(_ => _saveService.SaveGameData()).AddTo(_disposable);
     }
 
     public void SquareGathered(GameObject otherGameObject)
     {
         _scoreService.Score.Value++;
         _saveService.SaveGameData();
+    }
+
+    public int GetSavedDistance()
+    {
+        return _distancePassedService.Distance.Value;
     }
 }
