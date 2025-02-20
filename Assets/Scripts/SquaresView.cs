@@ -4,7 +4,7 @@ using Zenject;
 
 public class SquaresView : MonoBehaviour, ISquareView, IInitializable, IDisposable
 {
-    [Inject] private readonly IGameScoreHandler _gameScoreHandler;
+    [Inject] private readonly IInGameEventHandler _inGameEventHandler;
     [Inject] private readonly ISquaresRegistry _squaresRegistry;
 
     [SerializeField] private SpriteRenderer spriteRenderer = default;
@@ -34,7 +34,7 @@ public class SquaresView : MonoBehaviour, ISquareView, IInitializable, IDisposab
     {
         if (other.gameObject.CompareTag("Circle"))
         {
-            _gameScoreHandler.SquareGathered(other.gameObject);
+            _inGameEventHandler.SquareGathered(other.gameObject);
             Dispose();
         }
     }

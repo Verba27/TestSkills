@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public interface IGameScoreHandler
+public interface IInGameEventHandler
 {
     void DistancePassed(int value);
     void SquareGathered(GameObject otherGameObject);

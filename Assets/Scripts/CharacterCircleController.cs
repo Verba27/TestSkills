@@ -14,7 +14,7 @@ public class CharacterCircleController : IInitializable, IDisposable
     private CharacterView _characterView;
     private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
     private List<Vector3> _path = new List<Vector3>();
-    private ICharacterView character;
+    private ICharacterView _character;
 
 
     public CharacterCircleController(GameInputSystem gameInputSystem, CharacterView.Factory characterFactory)
@@ -25,7 +25,7 @@ public class CharacterCircleController : IInitializable, IDisposable
 
     public void Initialize()
     {
-        character = _characterFactory.Create();
+        _character = _characterFactory.Create();
 
         var token = _cancellationTokenSource.Token;
         _gameInputSystem.Path.ThrottleFirst(TimeSpan.FromSeconds(0.1))
@@ -50,7 +50,7 @@ public class CharacterCircleController : IInitializable, IDisposable
     private void Move(Vector3 path, CancellationToken token)
     {
         _path.Add(path);
-        character.SetPath(_path, token);
+        _character.SetPath(_path, token);
     }
 
     private bool IsClickOnCircle(Vector3 clickPosition)

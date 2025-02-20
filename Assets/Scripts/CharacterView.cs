@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -6,10 +7,12 @@ using Zenject;
 
 public class CharacterView : MonoBehaviour, ICharacterView
 {
+    [Inject] private IInGameEventHandler _inGameEventHandler;
     [SerializeField] private float speed = 5f;
     [SerializeField] private int minSpeed = 2;
     private List<Vector3> _path;
     private bool _isMoving = false;
+    private float _totalDistanceTraveled = 0f;
 
     public class Factory : PlaceholderFactory<CharacterView>
     {
@@ -48,6 +51,9 @@ public class CharacterView : MonoBehaviour, ICharacterView
 
             float currentSpeed = CalculateSpeed(target);
             transform.position = Vector3.MoveTowards(transform.position, target, currentSpeed * Time.deltaTime);
+            
+            _totalDistanceTraveled += currentSpeed * Time.deltaTime;
+            _inGameEventHandler.DistancePassed((int)_totalDistanceTraveled);
 
             await UniTask.Yield();
         }

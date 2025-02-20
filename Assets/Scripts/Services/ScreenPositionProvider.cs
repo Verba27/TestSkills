@@ -14,8 +14,8 @@ public class ScreenPositionProvider : IScreenPositionProvider
         Vector3 screenMin = _camera.ViewportToWorldPoint(new Vector3(0, 0, 9));
         Vector3 screenMax = _camera.ViewportToWorldPoint(new Vector3(1, 1, 9));
 
-        float x = Random.Range(screenMin.x, screenMax.x);
-        float y = Random.Range(screenMin.y, screenMax.y);
-        position = new Vector3(x * 0.9f, y * 0.9f, 0);
+        float x = Random.Range(screenMin.x * 0.9f, screenMax.x * 0.9f);
+        float y = Random.Range(screenMin.y * 0.9f, screenMax.y * 0.9f);
+        position = new Vector3(x, y, 0);
     }
 }
